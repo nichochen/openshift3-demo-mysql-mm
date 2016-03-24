@@ -1,0 +1,18 @@
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolume",
+  "metadata": {
+    "name": "mysql-002"
+  },
+  "spec": {
+    "capacity": {
+        "storage": "5Gi"
+    },
+    "accessModes": [ "ReadWriteMany" ],
+    "nfs": {
+        "path": "/exports/mysql-002",
+        "server": "node1.example.com"
+    },
+    "persistentVolumeReclaimPolicy": "Retain"
+  }
+}

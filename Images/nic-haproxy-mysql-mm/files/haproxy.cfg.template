@@ -1,0 +1,25 @@
+global
+    log 127.0.0.1 local0 notice
+    user haproxy
+    group haproxy
+
+defaults
+    log global
+    retries 2
+    timeout connect 3000
+    timeout server 5000
+    timeout client 5000
+ 
+listen stats 
+           mode http
+           bind 0.0.0.0:8888
+           stats enable
+           stats uri /dbs
+           stats realm Global\ statistics
+           stats auth admin:admin
+
+listen mysql-cluster
+    bind 0.0.0.0:3306
+    mode tcp
+    option mysql-check user haproxy_check
+    balance roundrobin

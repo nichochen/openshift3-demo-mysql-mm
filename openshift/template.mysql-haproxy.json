@@ -1,0 +1,137 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "mysql-haproxy",
+    "creationTimestamp": null,
+    "annotations": {
+      "description": "MySQL HAProxy",
+      "iconClass": "icon-database",
+      "tags": "database,mysql,replication"
+    }
+  },
+  "objects": [
+{
+    "kind": "Route",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "mysql-haproxy",
+        "creationTimestamp": null,
+        "labels": {
+            "name": "mysql-haproxy"
+        }
+    },
+    "spec": {
+        "host": "mysql-status.apps.example.com",
+        "to": {
+            "kind": "Service",
+            "name": "mysql-haproxy"
+        },
+        "port": {
+            "targetPort": "8888"
+        }
+    },
+    "status": {}
+},
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mysql-haproxy",
+        "labels": {
+          "name": "mysql-haproxy"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "mysql",
+            "protocol": "TCP",
+            "port": 3306,
+            "targetPort": 3306,
+            "nodePort": 0
+          },{
+            "name": "status",
+            "protocol": "TCP",
+            "port": 8888,
+            "targetPort": 8888,
+            "nodePort": 0
+          }
+        ],
+        "selector": {
+          "name": "mysql-haproxy"
+        },
+        "portalIP": "",
+        "type": "ClusterIP",
+        "sessionAffinity": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+	{
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mysql-haproxy",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "replicas": 1,
+        "selector": {
+          "name": "mysql-haproxy"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "name": "mysql-haproxy"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "haproxy",
+                "image": "nic-haproxy-mysql-mm",             
+                "ports": [
+                  {
+                    "containerPort": 3306,
+                    "protocol": "TCP"
+                  },
+				  {
+                    "containerPort": 8888,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+	          
+                ],
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "capabilities": {},
+                  "privileged": false
+                }
+              }
+            ],
+            "restartPolicy": "Always",
+            "dnsPolicy": "ClusterFirst"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}
+
+
